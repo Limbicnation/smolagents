@@ -57,5 +57,6 @@ if __name__ == "__main__":
         if os.getenv("HF_TOKEN"):
              test_skills_integration()
              
-    if os.getenv("ANTHROPIC_API_KEY"):
-        test_claude()
+    # Skip Claude test as requested
+    # if os.getenv("ANTHROPIC_API_KEY"):
+    #     test_claude()
