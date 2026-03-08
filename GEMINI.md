@@ -182,3 +182,36 @@ Prompt generation scripts:
 3. ✅ Created image prompt generator with Gemini fallback
 4. ✅ Moved generation scripts to `skills/scripts/`
 5. ✅ Bulk generating 750 image prompts (Limbicnation aesthetic)
+
+## Session Milestones (2026-03-09)
+
+1. ✅ Synced `main` with `upstream/main` — pulled **15 upstream commits** including:
+   - **Critical security fix** for remote executors (#1637)
+   - New `src/smolagents/serialization.py` module (safe serialization/deserialization)
+   - Executor hardening: loopback-only binding, token auth, per-instance cache isolation
+   - Rich MarkupError fix in `AgentLogger.log_task` (#1894)
+   - New docs: `docs/source/en/reference/python_executors.md`
+2. ✅ Rebased `feature/creative-orchestration` onto updated `main` (clean, no conflicts)
+3. ✅ Committed local changes: updated `agent_init.py`, `skills_bridge.py`, added `tools/`, `scripts/`, `CLAUDE.md`
+4. ✅ Pushed to fork: `Limbicnation/smolagents` (force-with-lease)
+
+### Upstream Sync Workflow
+
+```bash
+# Fetch and sync main
+git fetch upstream
+git checkout main
+git pull upstream main
+git push origin main
+
+# Rebase feature branch
+git checkout feature/creative-orchestration
+git rebase main
+git push origin feature/creative-orchestration --force-with-lease
+```
+
+### New Upstream Modules (v2026.3)
+
+- **`src/smolagents/serialization.py`**: Safe pickle serialization with prefix-based format detection. Replaces legacy no-prefix pickle.
+- **`src/smolagents/remote_executors.py`**: Major refactor — loopback-only binding, token auth for Docker/Modal/Wasm executors, `requests.Session` support.
+- **`tests/test_serialization.py`**: 928-line test suite for the new serialization module.
