@@ -43,13 +43,31 @@ def push_to_hf_hub(data: dict, repo_id: str = "Limbicnation/Video-Diffusion-Prom
         # Create a single-row dataset from the dict
         new_row = Dataset.from_list([data])
         
+        # 1. Check if the repository exists first to decide if we should expect existing data
+        from huggingface_hub import repo_info
+        repo_exists = False
+        try:
+            repo_info(repo_id, repo_type="dataset", token=token)
+            repo_exists = True
+        except Exception:
+            # If we can't even check repo info, we should probably stop to be safe
+            pass
+
         try:
             # Try to load existing and append
-            existing_ds = load_dataset(repo_id, split="train", token=token)
+            # Use download_mode='force_redownload' to ensure we have the latest
+            existing_ds = load_dataset(repo_id, split="train", token=token, download_mode="force_redownload")
             updated_ds = concatenate_datasets([existing_ds, new_row])
-        except Exception:
-            # If dataset doesn't exist or is empty, use the new one as base
+            print(f"Appended to existing dataset. New total size: {len(updated_ds)}")
+        except Exception as e:
+            # SAFETY CHECK: If repo exists but load_dataset failed, it's likely a temporary error.
+            # DO NOT overwrite. Raise error instead.
+            if repo_exists:
+                return f"Error: Dataset exists but failed to load existing data. Aborting to prevent overwrite. Error: {str(e)}"
+            
+            # If it truly doesn't exist, start fresh
             updated_ds = new_row
+            print("Starting new dataset (no existing data found).")
             
         updated_ds.push_to_hub(repo_id, token=token)
         return f"Successfully pushed to {repo_id}"

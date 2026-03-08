@@ -6,6 +6,18 @@ from smolagents.monitoring import TokenUsage
 from smolagents.models import ChatMessage, MessageRole
 from skills_bridge import generate_synthetic_prompt, push_to_hf_hub
 
+# Import high-performance HuggingFace tools
+from tools import (
+    ALL_HF_TOOLS,
+    hf_download,
+    hf_upload,
+    hf_search_models,
+    hf_model_info,
+    hf_search_datasets,
+    hf_query_dataset,
+    hf_whoami,
+)
+
 class GeminiModel(Model):
     # ... (rest of GeminiModel remains same)
     def __init__(self, model_id="gemini-2.0-flash", api_key=None, **kwargs):
@@ -97,3 +109,23 @@ def get_claude_agent(tools=None, model_id=None):
 
 def get_qwen_agent(tools=None, model_id=None):
     return get_agent(provider="qwen", tools=tools, model_id=model_id)
+
+def get_hf_agent(provider="gemini", model_id=None):
+    """
+    Get a CodeAgent pre-loaded with all HuggingFace Hub tools.
+    
+    This agent can search, download, upload, query datasets with SQL,
+    and manage cloud compute jobs on Hugging Face.
+    
+    Args:
+        provider: LLM provider - 'gemini', 'claude', or 'qwen'.
+        model_id: Optional specific model ID.
+    
+    Returns:
+        CodeAgent with all HF tools and planning enabled for complex tasks.
+    """
+    return get_agent(
+        provider=provider, 
+        tools=ALL_HF_TOOLS, 
+        model_id=model_id
+    )
